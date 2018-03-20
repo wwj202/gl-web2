@@ -3,7 +3,7 @@
             <el-card>
                 <div slot="header">
                     <span>产品列表</span>
-                    <el-button type="text" style="float: right; padding: 3px 0" @click="dialogFormVisible = true">新增产品</el-button>
+                    <el-button type="success" size="mini" style="float: right;" @click="dialogFormVisible = true">新增产品</el-button>
                     <el-dialog title="新增产品" :visible.sync="dialogFormVisible"
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
@@ -35,7 +35,7 @@
                     </el-dialog>
                 </div>
                 <el-row type="flex" justify="end">
-                    <el-pagination
+                    <!--el-pagination
                         layout="total, sizes, prev, pager, next, jumper"
                         :background="true"
                         :total="list.length"
@@ -43,18 +43,26 @@
                         @current-change="onCurrentChange"
                         :page-size="pageSize"
                         :page-sizes="[10, 20, 50, 100]"
-                        @size-change="onSizeChange" />
+                        @size-change="onSizeChange" /-->
                 </el-row>
-                <el-table :data="pageData" v-loading="list.length < 1">
-                    <el-table-column label="id" prop="id" />
+                <el-table stripe border :data="pageData" v-loading="list.length < 1">
+                    <el-table-column label="id" prop="id" width="80px" />
                     <el-table-column label="产品名称" prop="fldName" />
-                    <el-table-column label="产品系列" prop="fldSeries" />
+                    <el-table-column label="产品系列" prop="fldSeriesName" />
                     <el-table-column label="产品规格" prop="fldSpec" />
-                    <el-table-column label="零售单价" prop="fldPrice" />
-                    <el-table-column label="会员单价" prop="fldVipPrice" />
-                    <el-table-column label="购物券" prop="fldVipVoucher" />
+                    <el-table-column label="零售单价" prop="fldPrice" width="80px" />
+                    <el-table-column label="会员价" align="center">
+                        <el-table-column label="会员单价" prop="fldVipPrice" width="80px" />
+                        <el-table-column label="购物券" prop="fldVipVoucher" width="80px" />
+                    </el-table-column>
+                    <el-table-column label="操作" align="center" width="150px">
+                        <template slot-scope="scope">
+                            <el-button type="primary" size="mini">修改</el-button>
+                            <el-button type="danger" size="mini">删除</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
-                <el-row type="flex" justify="end">
+                <el-row type="flex" justify="end" style="margin-top: 10px">
                     <el-pagination
                         layout="total, sizes, prev, pager, next, jumper"
                         :background="true"
@@ -79,7 +87,7 @@ export default {
         return {
             seriesList: [{fldName: "aaa", fldValue: "1"}, {fldName: "bbbb", fldValue: "2"}],
             list: [],
-            pageData: [],
+            //pageData: [],
             currentPage: 1,
             pageSize: 10,
             dialogFormVisible: false,
@@ -96,7 +104,7 @@ export default {
                 data: {},
                 success: function(data) {
                     self.list = data.data;
-                    self.pageData = data.data;
+                    //self.pageData = data.data;
                 }
             });
         },
@@ -123,6 +131,18 @@ export default {
                     }
                 }
             });
+        }
+    },
+    computed: {
+        pageData() {
+            let {currentPage, pageSize, list} = this;
+            return this.filterList.slice(
+                (currentPage - 1) * pageSize, currentPage * pageSize
+            );
+        },
+        filterList() {
+            let list = this.list;
+            return list;
         }
     },
     created() {
