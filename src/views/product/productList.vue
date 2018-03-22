@@ -3,8 +3,8 @@
             <el-card>
                 <div slot="header">
                     <span>产品列表</span>
-                    <el-button type="success" size="mini" style="float: right;" @click="dialogFormVisible = true">新增产品</el-button>
-                    <el-dialog title="新增产品" :visible.sync="dialogFormVisible"
+                    <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增产品</el-button>
+                    <el-dialog title="新增产品" :visible.sync="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
                             <el-form-item label="产品名称">
@@ -12,7 +12,7 @@
                             </el-form-item>
                             <el-form-item label="产品系列">
                                 <el-select filterable v-model="form.fldSeries" placeholder="请选择产品系列">
-                                    <el-option v-for="i in seriesList" :key="i.fldValue" :label="i.fldName" :value="i.fldValue" />
+                                    <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id" />
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="产品规格">
@@ -29,16 +29,23 @@
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="onSubmit">确定</el-button>
-                                <el-button @click="dialogFormVisible = false">取消</el-button>
+                                <el-button @click="editMode = 'none'">取消</el-button>
                             </el-form-item>
                         </el-form>
                     </el-dialog>
                 </div>
+                <el-row type="flex" style="margin-bottom: 10px">
+                    <span style="margin-right: 20px">查询条件：</span>
+                    <el-input style="width: 200px" clearable placeholder="请输入商品名称" v-model="productNameSearch" size="mini" />
+                    <el-select clearable filterable v-model="seriesSearch" :placeholder="'请选择系列'" size="mini" style="margin-left: 15px">
+                        <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id"></el-option>
+                    </el-select>
+                </el-row>
                 <el-row type="flex" justify="end">
                     <!--el-pagination
                         layout="total, sizes, prev, pager, next, jumper"
                         :background="true"
-                        :total="list.length"
+                        :total="filterList.length"
                         :current-page="currentPage"
                         @current-change="onCurrentChange"
                         :page-size="pageSize"
@@ -57,7 +64,7 @@
                     </el-table-column>
                     <el-table-column label="操作" align="center" width="150px">
                         <template slot-scope="scope">
-                            <el-button type="primary" size="mini">修改</el-button>
+                            <el-button type="primary" size="mini" @click="updateClick(scope.row)">修改</el-button>
                             <el-button type="danger" size="mini">删除</el-button>
                         </template>
                     </el-table-column>
@@ -66,7 +73,7 @@
                     <el-pagination
                         layout="total, sizes, prev, pager, next, jumper"
                         :background="true"
-                        :total="list.length"
+                        :total="filterList.length"
                         :current-page="currentPage"
                         @current-change="onCurrentChange"
                         :page-size="pageSize"
@@ -85,13 +92,14 @@ export default {
     name: 'Test',
     data () {
         return {
-            seriesList: [{fldName: "aaa", fldValue: "1"}, {fldName: "bbbb", fldValue: "2"}],
+            seriesList: [],
             list: [],
-            //pageData: [],
             currentPage: 1,
             pageSize: 10,
-            dialogFormVisible: false,
-            form: {}
+            form: {},
+            productNameSearch: "",
+            seriesSearch: "",
+            editMode: "none"
         }
     },
     methods: {
@@ -108,11 +116,27 @@ export default {
                 }
             });
         },
+        loadSeriesList() {
+            var self = this;
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: "http://localhost/gl/product/series/list",
+                data: {},
+                success: function(data) {
+                    self.seriesList = data.data;
+                }
+            });
+        },
         onCurrentChange(page) {
             this.currentPage = page;
         },
         onSizeChange(size) {
             this.pageSize = size;
+        },
+        updateClick(data) {
+            this.form = data;
+            this.editMode = 'update';
         },
         onSubmit() {
             var self = this;
@@ -123,7 +147,7 @@ export default {
                 data: self.form,
                 success: function(data) {
                     if (data.result == "suc") {
-                        self.dialogFormVisible = false;
+                        self.editMode = 'none';
                         self.loadProductList();
                     }
                     else {
@@ -141,13 +165,24 @@ export default {
             );
         },
         filterList() {
-            let list = this.list;
+            let list = this.list, {productNameSearch, seriesSearch} = this;
+            console.log(productNameSearch, seriesSearch);
+            if (productNameSearch) {
+                list = list.filter(i => ~i.fldName.indexOf(productNameSearch));
+            }
+            if (seriesSearch) {
+                list = list.filter(i => i.fldSeries == seriesSearch);
+            }
             return list;
+        },
+        dialogFormVisible() {
+            return this.editMode == 'add' || this.editMode == 'update';
         }
     },
     created() {
         var self = this;
         self.loadProductList();
+        self.loadSeriesList();
     }
 }
 </script>
