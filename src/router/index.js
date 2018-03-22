@@ -7,9 +7,15 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/helloworld',
       name: 'HelloWorld',
       component: HelloWorld
+    },
+    {
+      path: '/',
+      name: 'index',
+      component: () =>
+      	  import ('@/views/index')
     },
     {
       path: '/test',
@@ -22,6 +28,36 @@ export default new Router({
       name: 'product',
       component: () =>
       	  import ('@/views/product/productList')
+    },
+    {
+      path: '/purchaseOrderList',
+      name: 'purchaseOrderList',
+      component: () =>
+      	  import ('@/views/purchase/purchaseOrderList')
+    },
+    {
+      path: '/purchaseOrder',
+      name: 'purchaseOrder',
+      component: () =>
+      	  import ('@/views/purchase/purchaseOrder')
+    },
+    {
+      path: '/sellOrderList',
+      name: 'sellOrderList',
+      component: () =>
+      	  import ('@/views/sell/sellOrderList')
+    },
+    {
+      path: '/sellOrder',
+      name: 'sellOrder',
+      component: () =>
+      	  import ('@/views/sell/sellOrder')
+    },
+    {
+      path: '/subsidy',
+      name: 'subsidy',
+      component: () =>
+      	  import ('@/views/subsidy/subsidyList')
     }
   ]
 })

@@ -15,11 +15,11 @@
             <i class="el-icon-menu"></i>
             <span slot="title">产品管理</span>
           </el-menu-item>
-          <el-menu-item index="/in">
+          <el-menu-item index="/purchaseOrderList">
             <i class="el-icon-download"></i>
             <span slot="title">入库管理</span>
           </el-menu-item>
-          <el-menu-item index="/out">
+          <el-menu-item index="/sellOrderList">
             <i class="el-icon-upload2"></i>
             <span slot="title">出库管理</span>
           </el-menu-item>
