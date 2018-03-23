@@ -17,11 +17,11 @@
           </el-menu-item>
           <el-menu-item index="/purchaseOrderList">
             <i class="el-icon-download"></i>
-            <span slot="title">入库管理</span>
+            <span slot="title">进货管理</span>
           </el-menu-item>
           <el-menu-item index="/sellOrderList">
             <i class="el-icon-upload2"></i>
-            <span slot="title">出库管理</span>
+            <span slot="title">售货管理</span>
           </el-menu-item>
           <el-menu-item index="/subsidy">
             <i class="el-icon-date"></i>

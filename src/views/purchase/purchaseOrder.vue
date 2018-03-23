@@ -2,21 +2,18 @@
         <el-main>
             <el-card>
                 <div slot="header">
-                    <span>产品列表</span>
-                    <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增产品</el-button>
+                    <span>进货明细列表 - 【进货日期：{{$route.params.date}}】</span>
+                    <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增进货明细</el-button>
                     <el-dialog title="新增产品" :visible.sync="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
                             <el-form-item label="产品名称">
-                                <el-input v-model="form.fldName" placeholder="请输入产品名称" auto-complete="off" />
-                            </el-form-item>
-                            <el-form-item label="产品系列">
-                                <el-select filterable v-model="form.fldSeries" placeholder="请选择产品系列">
-                                    <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id" />
+                                <el-select filterable v-model="form.fldProduct" placeholder="请选择产品系列">
+                                    <el-option v-for="i in productList" :key="i.id" :label="i.fldName" :value="i.id" />
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="产品规格">
-                                <el-input v-model="form.fldSpec" placeholder="请输入产品规格" auto-complete="off" />
+                                <el-input readonly v-model="fldProductSpec" placeholder="请输入产品规格" auto-complete="off" />
                             </el-form-item>
                             <el-form-item label="零售单价">
                                 <el-input-number v-model="form.fldPrice" placeholder="请输入零售单价" auto-complete="off" />
@@ -52,7 +49,7 @@
                         :page-sizes="[10, 20, 50, 100]"
                         @size-change="onSizeChange" /-->
                 </el-row>
-                <el-table stripe border :data="pageData" v-loading="list.length < 1">
+                <el-table stripe border :data="pageData" v-loading="loadingData">
                     <el-table-column label="编号" prop="id" width="80px" />
                     <el-table-column label="产品名称" prop="fldName" />
                     <el-table-column label="产品系列" prop="fldSeriesName" />
@@ -93,17 +90,31 @@ export default {
     name: 'Test',
     data () {
         return {
-            seriesList: [],
+            productList: [],
             list: [],
             currentPage: 1,
             pageSize: 10,
             form: {},
             productNameSearch: "",
             seriesSearch: "",
-            editMode: "none"
+            editMode: "none",
+            loadingData: true
         }
     },
     methods: {
+        loadDetailList() {
+            var self = this;
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: baseUrl + "purchase/detail/list?id=" + self.$route.params.id,
+                data: {},
+                success: function(data) {
+                    self.loadingData = false;
+                    self.list = data.data;
+                }
+            });
+        },
         loadProductList() {
             var self = this;
             $.ajax({
@@ -112,20 +123,7 @@ export default {
                 url: baseUrl + "product/list",
                 data: {},
                 success: function(data) {
-                    self.list = data.data;
-                    //self.pageData = data.data;
-                }
-            });
-        },
-        loadSeriesList() {
-            var self = this;
-            $.ajax({
-                type: "GET",
-                dataType: "json",
-                url: baseUrl + "product/series/list",
-                data: {},
-                success: function(data) {
-                    self.seriesList = data.data;
+                    self.productList = data.data;
                 }
             });
         },
@@ -141,9 +139,9 @@ export default {
         },
         onSubmit() {
             var self = this;
-            var url = baseUrl + "product/add";
+            var url = baseUrl + "purchase/detail/add";
             if (self.editMode == "update") {
-                url = baseUrl + "product/update";
+                url = baseUrl + "purchase/detail/update";
             }
             $.ajax({
                 type: "POST",
@@ -153,7 +151,8 @@ export default {
                 success: function(data) {
                     if (data.result == "suc") {
                         self.editMode = 'none';
-                        self.loadProductList();
+                        self.loadingData = true;
+                        self.loadDetailList();
                     }
                     else {
                         self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
@@ -171,7 +170,7 @@ export default {
                 $.ajax({
                     type: "POST",
                     dataType: "json",
-                    url: baseUrl + "product/delete",
+                    url: baseUrl + "purchase/detail/delete",
                     data: self.form,
                     success: function(data) {
                         if (data.result == "suc") {
@@ -179,7 +178,8 @@ export default {
                                 type: 'success',
                                 message: '删除成功!'
                             });
-                            self.loadProductList();
+                            self.loadingData = true;
+                            self.loadDetailList();
                         }
                         else {
                             self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
@@ -209,11 +209,14 @@ export default {
         },
         dialogFormVisible() {
             return this.editMode == 'add' || this.editMode == 'update';
+        },
+        fldProductSpec() {
+            return "aaaa";
         }
     },
     created() {
+        this.loadDetailList();
         this.loadProductList();
-        this.loadSeriesList();
     }
 }
 </script>
