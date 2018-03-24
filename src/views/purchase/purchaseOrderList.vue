@@ -4,7 +4,7 @@
                 <div slot="header">
                     <span>进货批次列表</span>
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增批次</el-button>
-                    <el-dialog title="新增批次" :visible.sync="dialogFormVisible" @close="editMode = 'none'"
+                    <el-dialog title="新增批次" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
                             <el-form-item label="进货日期">
