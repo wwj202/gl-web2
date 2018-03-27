@@ -2,30 +2,22 @@
         <el-main>
             <el-card>
                 <div slot="header">
-                    <span>产品列表</span>
-                    <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增产品</el-button>
-                    <el-dialog title="新增产品" :visible="dialogFormVisible" @close="editMode = 'none'"
+                    <span>商品销售订单列表</span>
+                    <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增销售订单</el-button>
+                    <el-dialog title="新增销售订单" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
-                            <el-form-item label="产品名称">
-                                <el-input v-model="form.fldName" placeholder="请输入产品名称" auto-complete="off" />
+                            <el-form-item label="销售日期">
+                                <el-date-picker v-model="form.fldDate" align="right" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" :picker-options="pickerOptions1" />
                             </el-form-item>
-                            <el-form-item label="产品系列">
-                                <el-select filterable v-model="form.fldSeries" placeholder="请选择产品系列">
-                                    <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id" />
-                                </el-select>
+                            <el-form-item label="客户姓名">
+                                <el-input v-model="form.fldCustomer" placeholder="请输入客户姓名" auto-complete="off" style="width: 500px" />
                             </el-form-item>
-                            <el-form-item label="产品规格">
-                                <el-input v-model="form.fldSpec" placeholder="请输入产品规格" auto-complete="off" />
+                            <el-form-item label="经手人">
+                                <el-input v-model="form.fldHandler" placeholder="请输入经手人" auto-complete="off" style="width: 500px" />
                             </el-form-item>
-                            <el-form-item label="零售单价">
-                                <el-input-number v-model="form.fldPrice" placeholder="请输入零售单价" auto-complete="off" />
-                            </el-form-item>
-                            <el-form-item label="会员单价">
-                                <el-input-number v-model="form.fldVipPrice" placeholder="请输入会员单价" auto-complete="off" />
-                            </el-form-item>
-                            <el-form-item label="购物券">
-                                <el-input-number v-model="form.fldVipVoucher" placeholder="请输入购物券" auto-complete="off" />
+                            <el-form-item label="备注">
+                                <el-input type="textarea" v-model="form.fldRemark" placeholder="请输入备注" auto-complete="off" style="width: 500px" />
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -36,10 +28,8 @@
                 </div>
                 <el-row type="flex" style="margin-bottom: 10px">
                     <span style="margin-right: 20px">查询条件：</span>
-                    <el-input style="width: 200px" clearable placeholder="请输入商品名称" v-model="productNameSearch" size="mini" />
-                    <el-select clearable filterable v-model="seriesSearch" :placeholder="'请选择系列'" size="mini" style="margin-left: 15px">
-                        <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id"></el-option>
-                    </el-select>
+                    <el-input style="width: 200px" clearable placeholder="请输入客户姓名" v-model="customerSearch" size="mini" />
+                    <el-input style="width: 200px; margin-left: 15px" clearable placeholder="请输入经手人" v-model="handlerSearch" size="mini" />
                 </el-row>
                 <el-row type="flex" justify="end">
                     <!--el-pagination
@@ -52,19 +42,24 @@
                         :page-sizes="[10, 20, 50, 100]"
                         @size-change="onSizeChange" /-->
                 </el-row>
-                <el-table stripe border :data="pageData" v-loading="list.length < 1">
+                <el-table stripe border :data="pageData" v-loading="loadingData">
                     <el-table-column label="编号" prop="id" width="80px" />
-                    <el-table-column label="产品名称" prop="fldName" />
-                    <el-table-column label="产品系列" prop="fldSeriesName" />
-                    <el-table-column label="产品规格" prop="fldSpec" />
-                    <el-table-column label="零售单价" prop="fldPrice" width="80px" />
+                    <el-table-column label="销售日期" prop="fldDate" />
+                    <el-table-column label="经手人" prop="fldHandler" />
+                    <el-table-column label="客户姓名" prop="fldCustomer" />
+                    <el-table-column label="备注" prop="fldRemark" />
+                    <el-table-column label="实际销售款" align="center">
+                        <el-table-column label="现金" prop="fldPrice" width="80px" />
+                        <el-table-column label="购物券" prop="fldVoucher" width="80px" />
+                    </el-table-column>
                     <el-table-column label="会员价" align="center">
-                        <el-table-column label="会员单价" prop="fldVipPrice" width="80px" />
+                        <el-table-column label="现金" prop="fldVipPrice" width="80px" />
                         <el-table-column label="购物券" prop="fldVipVoucher" width="80px" />
                     </el-table-column>
-                    <el-table-column label="操作" align="center" width="150px">
+                    <el-table-column label="操作" align="center" width="220px">
                         <template slot-scope="scope">
                             <el-button type="primary" size="mini" @click="updateClick(scope.row)">修改</el-button>
+                            <el-button type="success" size="mini" @click="viewClick(scope.row)">明细</el-button>
                             <el-button type="danger" size="mini" @click="deleteClick(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
@@ -87,45 +82,34 @@
 <script>
 
 import $ from 'jquery';
-import {baseUrl} from '../../js/constants';
+import {baseUrl, datePickerOptions} from '../../js/constants';
 
 export default {
     name: 'Test',
     data () {
         return {
-            seriesList: [],
+            pickerOptions1: datePickerOptions,
             list: [],
             currentPage: 1,
             pageSize: 10,
             form: {},
-            productNameSearch: "",
-            seriesSearch: "",
-            editMode: "none"
+            handlerSearch: "",
+            customerSearch: "",
+            editMode: "none",
+            loadingData: true
         }
     },
     methods: {
-        loadProductList() {
+        loadSellOrderList() {
             var self = this;
             $.ajax({
                 type: "GET",
                 dataType: "json",
-                url: baseUrl + "product/list",
+                url: baseUrl + "sell/order/list",
                 data: {},
                 success: function(data) {
                     self.list = data.data;
-                    //self.pageData = data.data;
-                }
-            });
-        },
-        loadSeriesList() {
-            var self = this;
-            $.ajax({
-                type: "GET",
-                dataType: "json",
-                url: baseUrl + "product/series/list",
-                data: {},
-                success: function(data) {
-                    self.seriesList = data.data;
+                    self.loadingData = false;
                 }
             });
         },
@@ -139,11 +123,14 @@ export default {
             this.form = $.extend({}, data);
             this.editMode = 'update';
         },
+        viewClick(data) {
+            this.$router.push({name: 'sellOrder', params: {id: data.id, date: data.fldDate}});
+        },
         onSubmit() {
             var self = this;
-            var url = baseUrl + "product/add";
+            var url = baseUrl + "sell/order/add";
             if (self.editMode == "update") {
-                url = baseUrl + "product/update";
+                url = baseUrl + "sell/order/update";
             }
             $.ajax({
                 type: "POST",
@@ -153,7 +140,8 @@ export default {
                 success: function(data) {
                     if (data.result == "suc") {
                         self.editMode = 'none';
-                        self.loadProductList();
+                        self.loadingData = true;
+                        self.loadSellOrderList();
                     }
                     else {
                         self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
@@ -163,7 +151,7 @@ export default {
         },
         deleteClick(data) {
             var self = this;
-            this.$confirm('您确定要删除商品【' + data.fldName + '】吗?', '提示', {
+            this.$confirm('您确定要删除客户【' + data.fldCustomer + '】销售单吗?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -171,15 +159,16 @@ export default {
                 $.ajax({
                     type: "POST",
                     dataType: "json",
-                    url: baseUrl + "product/delete",
-                    data: self.form,
+                    url: baseUrl + "sell/order/delete",
+                    data: {orderId: data.id},
                     success: function(data) {
                         if (data.result == "suc") {
                             self.$message({
                                 type: 'success',
                                 message: '删除成功!'
                             });
-                            self.loadProductList();
+                            self.loadingData = true;
+                            self.loadSellOrderList();
                         }
                         else {
                             self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
@@ -197,13 +186,12 @@ export default {
             );
         },
         filterList() {
-            let list = this.list, {productNameSearch, seriesSearch} = this;
-            //console.log(productNameSearch, seriesSearch);
-            if (productNameSearch) {
-                list = list.filter(i => ~i.fldName.indexOf(productNameSearch));
+            let list = this.list, {customerSearch, handlerSearch} = this;
+            if (customerSearch) {
+                list = list.filter(i => ~i.fldCustomer.indexOf(customerSearch));
             }
-            if (seriesSearch) {
-                list = list.filter(i => i.fldSeries == seriesSearch);
+            if (handlerSearch) {
+                list = list.filter(i => ~i.fldHandler.indexOf(handlerSearch));
             }
             return list;
         },
@@ -212,8 +200,7 @@ export default {
         }
     },
     created() {
-        this.loadProductList();
-        this.loadSeriesList();
+        this.loadSellOrderList();
     }
 }
 </script>

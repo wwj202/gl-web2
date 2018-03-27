@@ -8,7 +8,7 @@
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
                             <el-form-item label="进货日期">
-                                <el-date-picker v-model="form.fldDate" align="right" type="date" placeholder="选择日期" :picker-options="pickerOptions1" />
+                                <el-date-picker v-model="form.fldDate" align="right" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" :picker-options="pickerOptions1" />
                             </el-form-item>
                             <el-form-item label="经手人">
                                 <el-input v-model="form.fldHandler" placeholder="请输入经手人" auto-complete="off" style="width: 500px" />
@@ -43,7 +43,7 @@
                     <el-table-column label="进货日期" prop="fldDate" />
                     <el-table-column label="经手人" prop="fldHandler" />
                     <el-table-column label="备注" prop="fldRemark" />
-                    <el-table-column label="进货款" align="center">
+                    <el-table-column label="实际进货款" align="center">
                         <el-table-column label="单价" prop="fldPrice" width="80px" />
                         <el-table-column label="购物券" prop="fldVoucher" width="80px" />
                     </el-table-column>
@@ -80,37 +80,13 @@
 <script>
 
 import $ from 'jquery';
-import {baseUrl} from '../../js/constants';
+import {baseUrl, datePickerOptions} from '../../js/constants';
 
 export default {
     name: 'Test',
     data () {
         return {
-            pickerOptions1: {
-                disabledDate(time) {
-                    return time.getTime() > Date.now();
-                },
-                shortcuts: [{
-                    text: '今天',
-                    onClick(picker) {
-                        picker.$emit('pick', new Date());
-                    }
-                }, {
-                    text: '昨天',
-                    onClick(picker) {
-                        const date = new Date();
-                        date.setTime(date.getTime() - 3600 * 1000 * 24);
-                        picker.$emit('pick', date);
-                    }
-                }, {
-                    text: '一周前',
-                    onClick(picker) {
-                        const date = new Date();
-                        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-                        picker.$emit('pick', date);
-                    }
-                }]
-            },
+            pickerOptions1: datePickerOptions,
             list: [],
             currentPage: 1,
             pageSize: 10,

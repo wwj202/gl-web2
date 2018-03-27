@@ -5,7 +5,7 @@
                     <span>进货明细列表 - 【进货日期：{{$route.params.date}}】</span>
                     <el-button type="info" size="mini" style="float: right; margin-left: 10px" @click="$router.back()">返回</el-button>
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增进货明细</el-button>
-                    <el-dialog title="新增产品" :visible="dialogFormVisible" @close="editMode = 'none'"
+                    <el-dialog title="新增进货明细" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
                             <el-form-item label="产品名称">
@@ -22,10 +22,10 @@
                             <el-form-item label="会员购物券">
                                 <el-input-number disabled v-model="form.fldVipVoucher" placeholder="会员购物券" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="进货单价">
+                            <el-form-item label="实际进货单价">
                                 <el-input-number v-model="form.fldPrice" placeholder="请输入进货单价" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="进货购物券">
+                            <el-form-item label="实际进货购物券">
                                 <el-input-number v-model="form.fldVoucher" placeholder="请输入进货购物券" auto-complete="off" />
                             </el-form-item>
                             <el-form-item label="进货数量">

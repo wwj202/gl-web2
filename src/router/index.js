@@ -48,7 +48,7 @@ export default new Router({
       	  import ('@/views/sell/sellOrderList')
     },
     {
-      path: '/sellOrder',
+      path: '/sellOrder/:id/:date/detail',
       name: 'sellOrder',
       component: () =>
       	  import ('@/views/sell/sellOrder')

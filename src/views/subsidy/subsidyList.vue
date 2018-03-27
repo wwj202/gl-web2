@@ -2,30 +2,22 @@
         <el-main>
             <el-card>
                 <div slot="header">
-                    <span>产品列表</span>
-                    <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增产品</el-button>
-                    <el-dialog title="新增产品" :visible="dialogFormVisible" @close="editMode = 'none'"
+                    <span>报单列表</span>
+                    <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增报单</el-button>
+                    <el-dialog title="新增报单" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
                         <el-form :model="form" label-width="110px">
-                            <el-form-item label="产品名称">
-                                <el-input v-model="form.fldName" placeholder="请输入产品名称" auto-complete="off" />
+                            <el-form-item label="报单日期">
+                                <el-date-picker v-model="form.fldDate" align="right" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" :picker-options="pickerOptions1" />
                             </el-form-item>
-                            <el-form-item label="产品系列">
-                                <el-select filterable v-model="form.fldSeries" placeholder="请选择产品系列">
-                                    <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id" />
-                                </el-select>
+                            <el-form-item label="会员姓名">
+                                <el-input v-model="form.fldCustomer" placeholder="请输入会员姓名" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="产品规格">
-                                <el-input v-model="form.fldSpec" placeholder="请输入产品规格" auto-complete="off" />
+                            <el-form-item label="报单数量">
+                                <el-input-number v-model="form.fldCount" placeholder="请输入报单数量" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="零售单价">
-                                <el-input-number v-model="form.fldPrice" placeholder="请输入零售单价" auto-complete="off" />
-                            </el-form-item>
-                            <el-form-item label="会员单价">
-                                <el-input-number v-model="form.fldVipPrice" placeholder="请输入会员单价" auto-complete="off" />
-                            </el-form-item>
-                            <el-form-item label="购物券">
-                                <el-input-number v-model="form.fldVipVoucher" placeholder="请输入购物券" auto-complete="off" />
+                            <el-form-item label="补助单价">
+                                <el-input-number v-model="form.fldPrice" placeholder="请输入补助单价" auto-complete="off" />
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -36,10 +28,7 @@
                 </div>
                 <el-row type="flex" style="margin-bottom: 10px">
                     <span style="margin-right: 20px">查询条件：</span>
-                    <el-input style="width: 200px" clearable placeholder="请输入商品名称" v-model="productNameSearch" size="mini" />
-                    <el-select clearable filterable v-model="seriesSearch" :placeholder="'请选择系列'" size="mini" style="margin-left: 15px">
-                        <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id"></el-option>
-                    </el-select>
+                    <el-input style="width: 200px" clearable placeholder="请输入会员姓名" v-model="customerSearch" size="mini" />
                 </el-row>
                 <el-row type="flex" justify="end">
                     <!--el-pagination
@@ -52,16 +41,13 @@
                         :page-sizes="[10, 20, 50, 100]"
                         @size-change="onSizeChange" /-->
                 </el-row>
-                <el-table stripe border :data="pageData" v-loading="list.length < 1">
+                <el-table stripe border :data="pageData" v-loading="loadingData">
                     <el-table-column label="编号" prop="id" width="80px" />
-                    <el-table-column label="产品名称" prop="fldName" />
-                    <el-table-column label="产品系列" prop="fldSeriesName" />
-                    <el-table-column label="产品规格" prop="fldSpec" />
-                    <el-table-column label="零售单价" prop="fldPrice" width="80px" />
-                    <el-table-column label="会员价" align="center">
-                        <el-table-column label="会员单价" prop="fldVipPrice" width="80px" />
-                        <el-table-column label="购物券" prop="fldVipVoucher" width="80px" />
-                    </el-table-column>
+                    <el-table-column label="报单日期" prop="fldDate" />
+                    <el-table-column label="会员姓名" prop="fldCustomer" />
+                    <el-table-column label="报单数量" prop="fldCount" />
+                    <el-table-column label="补助单价" prop="fldPrice" />
+                    <el-table-column label="补助金额" prop="fldTotalPrice" />
                     <el-table-column label="操作" align="center" width="150px">
                         <template slot-scope="scope">
                             <el-button type="primary" size="mini" @click="updateClick(scope.row)">修改</el-button>
@@ -87,47 +73,43 @@
 <script>
 
 import $ from 'jquery';
-import {baseUrl} from '../../js/constants';
+import {baseUrl, datePickerOptions} from '../../js/constants';
 
 export default {
     name: 'Test',
     data () {
         return {
-            seriesList: [],
+            pickerOptions1: datePickerOptions,
             list: [],
             currentPage: 1,
             pageSize: 10,
-            form: {},
-            productNameSearch: "",
-            seriesSearch: "",
-            editMode: "none"
+            form: {fldPrice: 59},
+            customerSearch: "",
+            editMode: "none",
+            loadingData: true
         }
     },
     methods: {
-        loadProductList() {
+        loadSubsidyList() {
             var self = this;
             $.ajax({
                 type: "GET",
                 dataType: "json",
-                url: baseUrl + "product/list",
+                url: baseUrl + "subsidy/list",
                 data: {},
                 success: function(data) {
                     self.list = data.data;
+                    self.calculateTotalPrice();
                     //self.pageData = data.data;
+                    self.loadingData = false;
                 }
             });
         },
-        loadSeriesList() {
-            var self = this;
-            $.ajax({
-                type: "GET",
-                dataType: "json",
-                url: baseUrl + "product/series/list",
-                data: {},
-                success: function(data) {
-                    self.seriesList = data.data;
-                }
-            });
+        calculateTotalPrice() {
+            var theList = this.list;
+            for (var i = 0; i < theList.length; i++) {
+                theList[i].fldTotalPrice = theList[i].fldCount * theList[i].fldPrice;
+            }
         },
         onCurrentChange(page) {
             this.currentPage = page;
@@ -141,9 +123,9 @@ export default {
         },
         onSubmit() {
             var self = this;
-            var url = baseUrl + "product/add";
+            var url = baseUrl + "subsidy/add";
             if (self.editMode == "update") {
-                url = baseUrl + "product/update";
+                url = baseUrl + "subsidy/update";
             }
             $.ajax({
                 type: "POST",
@@ -153,7 +135,8 @@ export default {
                 success: function(data) {
                     if (data.result == "suc") {
                         self.editMode = 'none';
-                        self.loadProductList();
+                        self.loadingData = true;
+                        self.loadSubsidyList();
                     }
                     else {
                         self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
@@ -163,7 +146,7 @@ export default {
         },
         deleteClick(data) {
             var self = this;
-            this.$confirm('您确定要删除商品【' + data.fldName + '】吗?', '提示', {
+            this.$confirm('您确定要删除会员【' + data.fldCustomer + '】的报单吗?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -171,15 +154,16 @@ export default {
                 $.ajax({
                     type: "POST",
                     dataType: "json",
-                    url: baseUrl + "product/delete",
-                    data: self.form,
+                    url: baseUrl + "subsidy/delete",
+                    data: {subsidyId: data.id},
                     success: function(data) {
                         if (data.result == "suc") {
                             self.$message({
                                 type: 'success',
                                 message: '删除成功!'
                             });
-                            self.loadProductList();
+                            self.loadingData = true;
+                            self.loadSubsidyList();
                         }
                         else {
                             self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
@@ -197,13 +181,9 @@ export default {
             );
         },
         filterList() {
-            let list = this.list, {productNameSearch, seriesSearch} = this;
-            //console.log(productNameSearch, seriesSearch);
-            if (productNameSearch) {
-                list = list.filter(i => ~i.fldName.indexOf(productNameSearch));
-            }
-            if (seriesSearch) {
-                list = list.filter(i => i.fldSeries == seriesSearch);
+            let list = this.list, {customerSearch} = this;
+            if (customerSearch) {
+                list = list.filter(i => ~i.fldCustomer.indexOf(customerSearch));
             }
             return list;
         },
@@ -212,8 +192,7 @@ export default {
         }
     },
     created() {
-        this.loadProductList();
-        this.loadSeriesList();
+        this.loadSubsidyList();
     }
 }
 </script>
