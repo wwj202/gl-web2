@@ -54,10 +54,16 @@ export default new Router({
       	  import ('@/views/sell/sellOrder')
     },
     {
-      path: '/subsidy',
-      name: 'subsidy',
+      path: '/subsidyList',
+      name: 'subsidyList',
       component: () =>
       	  import ('@/views/subsidy/subsidyList')
+    },
+    {
+      path: '/subsidyStat',
+      name: 'subsidyStat',
+      component: () =>
+      	  import ('@/views/subsidy/subsidyStatistic')
     }
   ]
 })

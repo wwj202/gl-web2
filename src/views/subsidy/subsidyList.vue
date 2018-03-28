@@ -3,6 +3,10 @@
             <el-card>
                 <div slot="header">
                     <span>报单列表</span>
+                </div>
+                <el-row style="margin-bottom: 10px">
+                    <span style="margin-right: 20px">查询条件：</span>
+                    <el-input style="width: 200px" clearable placeholder="请输入会员姓名" v-model="customerSearch" size="mini" />
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增报单</el-button>
                     <el-dialog title="新增报单" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
@@ -25,10 +29,6 @@
                             </el-form-item>
                         </el-form>
                     </el-dialog>
-                </div>
-                <el-row type="flex" style="margin-bottom: 10px">
-                    <span style="margin-right: 20px">查询条件：</span>
-                    <el-input style="width: 200px" clearable placeholder="请输入会员姓名" v-model="customerSearch" size="mini" />
                 </el-row>
                 <el-row type="flex" justify="end">
                     <!--el-pagination

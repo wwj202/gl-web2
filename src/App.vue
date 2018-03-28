@@ -2,7 +2,7 @@
   <div id="app">
     <el-row>
       <el-col :span="4">
-        <div style="background-color: #545c64; color: white; font-size: 30px; padding: 20px 20px">系统菜单</div>
+        <div style="background-color: #545c64; color: white; font-size: 30px; padding: 20px 20px; border-right: solid 1px #e6e6e6;">系统菜单</div>
         <el-menu
           default-active="/product"
           class="el-menu-vertical-demo"
@@ -10,7 +10,8 @@
           text-color="#fff"
           active-text-color="#ffd04b"
           :default-active="$route.path"
-          :router="true">
+          :router="true"
+          :style="menuStyle">
           <el-menu-item index="/product">
             <i class="el-icon-menu"></i>
             <span slot="title">产品管理</span>
@@ -23,9 +24,13 @@
             <i class="el-icon-upload2"></i>
             <span slot="title">售货管理</span>
           </el-menu-item>
-          <el-menu-item index="/subsidy">
+          <el-menu-item index="/subsidyList">
+            <i class="el-icon-tickets"></i>
+            <span slot="title">报单补助列表</span>
+          </el-menu-item>
+          <el-menu-item index="/subsidyStat">
             <i class="el-icon-date"></i>
-            <span slot="title">报单补助管理</span>
+            <span slot="title">报单补助统计</span>
           </el-menu-item>
           <!-- <el-menu-item index="/test">
             <i class="el-icon-setting"></i>
@@ -42,7 +47,12 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  computed: {
+    menuStyle() {
+      return "min-height:" + document.body.clientHeight + "px";
+    }
+  }
 }
 </script>
 
