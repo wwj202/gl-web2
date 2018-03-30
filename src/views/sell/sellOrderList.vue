@@ -2,7 +2,7 @@
         <el-main>
             <el-card>
                 <div slot="header">
-                    <span>商品销售订单列表</span>
+                    <span>产品销售订单列表</span>
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增销售订单</el-button>
                     <el-dialog title="新增销售订单" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
@@ -42,7 +42,7 @@
                         :page-sizes="[10, 20, 50, 100]"
                         @size-change="onSizeChange" /-->
                 </el-row>
-                <el-table stripe border :data="pageData" v-loading="loadingData">
+                <el-table show-summary stripe border :data="pageData" v-loading="loadingData">
                     <el-table-column label="编号" prop="id" width="80px" />
                     <el-table-column label="销售日期" prop="fldDate" />
                     <el-table-column label="经手人" prop="fldHandler" />
@@ -124,7 +124,7 @@ export default {
             this.editMode = 'update';
         },
         viewClick(data) {
-            this.$router.push({name: 'sellOrder', params: {id: data.id, date: data.fldDate}});
+            this.$router.push({name: 'sellOrder', params: {id: data.id, date: data.fldDate, customer: encodeURI(data.fldCustomer)}});
         },
         onSubmit() {
             var self = this;

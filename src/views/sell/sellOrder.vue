@@ -2,8 +2,9 @@
         <el-main>
             <el-card>
                 <div slot="header">
-                    <span>进货明细列表 - 【进货日期：{{$route.params.date}}】</span>
+                    <span>销售明细列表 - 【销售日期：{{$route.params.date}}】 - 【客户姓名：{{decodeURI($route.params.customer)}}】</span>
                     <el-button type="info" size="mini" style="float: right; margin-left: 10px" @click="$router.back()">返回</el-button>
+                    <el-button type="primary" size="mini" style="float: right; margin-left: 10px" @click="exportToExcel">导出Excel</el-button>
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增销售明细</el-button>
                     <el-dialog title="新增销售明细" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
@@ -37,6 +38,7 @@
                             </el-form-item>
                         </el-form>
                     </el-dialog>
+                    <form :action="exportUrl" method="post" style="display: none" ref="exportExcel"></form>
                 </div>
                 <el-row type="flex" style="margin-bottom: 10px">
                     <span style="margin-right: 20px">查询条件：</span>
@@ -54,7 +56,7 @@
                         :page-sizes="[10, 20, 50, 100]"
                         @size-change="onSizeChange" /-->
                 </el-row>
-                <el-table stripe border :data="pageData" v-loading="loadingData">
+                <el-table show-summary stripe border :data="pageData" v-loading="loadingData">
                     <el-table-column label="编号" prop="id" width="80px" />
                     <el-table-column label="产品名称" prop="fldProductName" />
                     <el-table-column label="产品规格" prop="fldProductSpec" />
@@ -107,7 +109,8 @@ export default {
             productNameSearch: "",
             priceSearch: "",
             editMode: "none",
-            loadingData: true
+            loadingData: true,
+            exportUrl: baseUrl + "sell/detail/export?orderId=" + this.$route.params.id
         }
     },
     methods: {
@@ -217,6 +220,12 @@ export default {
                         }
                     }
                 });
+            });
+        },
+        exportToExcel() {
+            let form = this.$refs.exportExcel;
+            this.$nextTick(() => {
+                form.submit();
             });
         }
     },

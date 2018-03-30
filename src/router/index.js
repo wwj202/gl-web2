@@ -48,10 +48,22 @@ export default new Router({
       	  import ('@/views/sell/sellOrderList')
     },
     {
-      path: '/sellOrder/:id/:date/detail',
+      path: '/sellOrder/:id/:date/:customer/detail',
       name: 'sellOrder',
       component: () =>
       	  import ('@/views/sell/sellOrder')
+    },
+    {
+      path: '/productStockStat',
+      name: 'productStockStat',
+      component: () =>
+      	  import ('@/views/product/productStockStat')
+    },
+    {
+      path: '/productSellRanking',
+      name: 'productSellRanking',
+      component: () =>
+      	  import ('@/views/product/sellRanking')
     },
     {
       path: '/subsidyList',

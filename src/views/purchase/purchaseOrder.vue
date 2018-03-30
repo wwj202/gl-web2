@@ -54,7 +54,7 @@
                         :page-sizes="[10, 20, 50, 100]"
                         @size-change="onSizeChange" /-->
                 </el-row>
-                <el-table stripe border :data="pageData" v-loading="loadingData">
+                <el-table show-summary stripe border :data="pageData" v-loading="loadingData">
                     <el-table-column label="编号" prop="id" width="80px" />
                     <el-table-column label="产品名称" prop="fldProductName" />
                     <el-table-column label="产品规格" prop="fldProductSpec" />

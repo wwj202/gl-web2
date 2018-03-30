@@ -24,6 +24,14 @@
             <i class="el-icon-upload2"></i>
             <span slot="title">售货管理</span>
           </el-menu-item>
+          <el-menu-item index="/productStockStat">
+            <i class="el-icon-picture"></i>
+            <span slot="title">产品库存统计</span>
+          </el-menu-item>
+          <el-menu-item index="/productSellRanking">
+            <i class="el-icon-star-on"></i>
+            <span slot="title">产品销售排名</span>
+          </el-menu-item>
           <el-menu-item index="/subsidyList">
             <i class="el-icon-tickets"></i>
             <span slot="title">报单补助列表</span>
