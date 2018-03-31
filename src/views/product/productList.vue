@@ -6,25 +6,25 @@
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增产品</el-button>
                     <el-dialog title="新增产品" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
-                        <el-form :model="form" label-width="110px">
-                            <el-form-item label="产品名称">
+                        <el-form :model="form" :rules="rules" ref="theForm" label-width="110px">
+                            <el-form-item label="产品名称" prop="fldName">
                                 <el-input v-model="form.fldName" placeholder="请输入产品名称" auto-complete="off" style="width: 500px" />
                             </el-form-item>
-                            <el-form-item label="产品系列">
+                            <el-form-item label="产品系列" prop="fldSeries">
                                 <el-select filterable v-model="form.fldSeries" placeholder="请选择产品系列">
                                     <el-option v-for="i in seriesList" :key="i.id" :label="i.fldName" :value="i.id" />
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="产品规格">
+                            <el-form-item label="产品规格" prop="fldSpec">
                                 <el-input v-model="form.fldSpec" placeholder="请输入产品规格" auto-complete="off" style="width: 500px" />
                             </el-form-item>
-                            <el-form-item label="零售单价">
+                            <el-form-item label="零售单价" prop="fldPrice">
                                 <el-input-number v-model="form.fldPrice" placeholder="请输入零售单价" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="会员单价">
+                            <el-form-item label="会员单价" prop="fldVipPrice">
                                 <el-input-number v-model="form.fldVipPrice" placeholder="请输入会员单价" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="购物券">
+                            <el-form-item label="购物券" prop="fldVipVoucher">
                                 <el-input-number v-model="form.fldVipVoucher" placeholder="请输入购物券" auto-complete="off" />
                             </el-form-item>
                             <el-form-item>
@@ -100,7 +100,27 @@ export default {
             form: {},
             productNameSearch: "",
             seriesSearch: "",
-            editMode: "none"
+            editMode: "none",
+            rules: {
+                fldName: [
+                    { required: true, message: '请输入产品名称', trigger: 'blur' }
+                ],
+                fldSeries: [
+                    { required: true, message: '请选择产品系列', trigger: 'change' }
+                ],
+                fldSpec: [
+                    { required: true, message: '请输入产品规格', trigger: 'blur' }
+                ],
+                fldPrice: [
+                    { required: true, message: '请输入零售单价', trigger: 'blur' }
+                ],
+                fldVipPrice: [
+                    { required: true, message: '请输入会员单价', trigger: 'blur' }
+                ],
+                fldVipVoucher: [
+                    { required: true, message: '请输入购物券', trigger: 'blur' }
+                ]
+            }
         }
     },
     methods: {
@@ -141,23 +161,30 @@ export default {
         },
         onSubmit() {
             var self = this;
-            var url = baseUrl + "product/add";
-            if (self.editMode == "update") {
-                url = baseUrl + "product/update";
-            }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: url,
-                data: self.form,
-                success: function(data) {
-                    if (data.result == "suc") {
-                        self.editMode = 'none';
-                        self.loadProductList();
+            self.$refs["theForm"].validate((valid) => {
+                if (valid) {
+                    var url = baseUrl + "product/add";
+                    if (self.editMode == "update") {
+                        url = baseUrl + "product/update";
                     }
-                    else {
-                        self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
-                    }
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: url,
+                        data: self.form,
+                        success: function(data) {
+                            if (data.result == "suc") {
+                                self.editMode = 'none';
+                                self.loadProductList();
+                            }
+                            else {
+                                self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
+                            }
+                        }
+                    });
+                } else {
+                    console.log('error submit!!');
+                    return false;
                 }
             });
         },

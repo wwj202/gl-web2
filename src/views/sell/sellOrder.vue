@@ -8,8 +8,8 @@
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增销售明细</el-button>
                     <el-dialog title="新增销售明细" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
-                        <el-form :model="form" label-width="110px">
-                            <el-form-item label="产品名称">
+                        <el-form :model="form" :rules="rules" ref="theForm" label-width="110px">
+                            <el-form-item label="产品名称" prop="fldProduct">
                                 <el-select filterable v-model="form.fldProduct" placeholder="请选择产品" @change="onChangeProduct">
                                     <el-option v-for="i in productList" :key="i.id" :label="i.fldName" :value="i.id" />
                                 </el-select>
@@ -29,7 +29,7 @@
                             <el-form-item label="实际销售购物券">
                                 <el-input-number v-model="form.fldVoucher" placeholder="请输入购物券" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="销售数量">
+                            <el-form-item label="销售数量" prop="fldCount">
                                 <el-input-number v-model="form.fldCount" placeholder="请输入销售数量" auto-complete="off" />
                             </el-form-item>
                             <el-form-item>
@@ -110,7 +110,15 @@ export default {
             priceSearch: "",
             editMode: "none",
             loadingData: true,
-            exportUrl: baseUrl + "sell/detail/export?orderId=" + this.$route.params.id
+            exportUrl: baseUrl + "sell/detail/export?orderId=" + this.$route.params.id,
+            rules: {
+                fldProduct: [
+                    { required: true, message: '请选择产品', trigger: 'change' }
+                ],
+                fldCount: [
+                    { required: true, message: '请输入销售数量', trigger: 'blur' }
+                ]
+            }
         }
     },
     methods: {
@@ -170,27 +178,34 @@ export default {
         },
         onSubmit() {
             var self = this;
-            var url = baseUrl + "sell/detail/add";
-            if (self.editMode == "update") {
-                url = baseUrl + "sell/detail/update";
-            }
-            else {
-                self.form.fldOrder = self.$route.params.id;
-            }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: url,
-                data: self.form,
-                success: function(data) {
-                    if (data.result == "suc") {
-                        self.editMode = 'none';
-                        self.loadingData = true;
-                        self.loadDetailList();
+            self.$refs["theForm"].validate((valid) => {
+                if (valid) {
+                    var url = baseUrl + "sell/detail/add";
+                    if (self.editMode == "update") {
+                        url = baseUrl + "sell/detail/update";
                     }
                     else {
-                        self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
+                        self.form.fldOrder = self.$route.params.id;
                     }
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: url,
+                        data: self.form,
+                        success: function(data) {
+                            if (data.result == "suc") {
+                                self.editMode = 'none';
+                                self.loadingData = true;
+                                self.loadDetailList();
+                            }
+                            else {
+                                self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
+                            }
+                        }
+                    });
+                } else {
+                    console.log('error submit!!');
+                    return false;
                 }
             });
         },

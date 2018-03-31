@@ -10,17 +10,17 @@
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增报单</el-button>
                     <el-dialog title="新增报单" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
-                        <el-form :model="form" label-width="110px">
-                            <el-form-item label="报单日期">
+                        <el-form :model="form" :rules="rules" ref="theForm" label-width="110px">
+                            <el-form-item label="报单日期" prop="fldDate">
                                 <el-date-picker v-model="form.fldDate" align="right" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" :picker-options="pickerOptions1" />
                             </el-form-item>
-                            <el-form-item label="会员姓名">
+                            <el-form-item label="会员姓名" prop="fldCustomer">
                                 <el-input v-model="form.fldCustomer" placeholder="请输入会员姓名" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="报单数量">
+                            <el-form-item label="报单数量" prop="fldCount">
                                 <el-input-number v-model="form.fldCount" placeholder="请输入报单数量" auto-complete="off" />
                             </el-form-item>
-                            <el-form-item label="补助单价">
+                            <el-form-item label="补助单价" prop="fldPrice">
                                 <el-input-number v-model="form.fldPrice" placeholder="请输入补助单价" auto-complete="off" />
                             </el-form-item>
                             <el-form-item>
@@ -86,7 +86,21 @@ export default {
             form: {fldPrice: 59},
             customerSearch: "",
             editMode: "none",
-            loadingData: true
+            loadingData: true,
+            rules: {
+                fldDate: [
+                    { required: true, message: '请选择日期', trigger: 'change' }
+                ],
+                fldCustomer: [
+                    { required: true, message: '请输入会员姓名', trigger: 'blur' }
+                ],
+                fldCount: [
+                    { required: true, message: '请输入报单数量', trigger: 'blur' }
+                ],
+                fldPrice: [
+                    { required: true, message: '请输入补助单价', trigger: 'blur' }
+                ]
+            }
         }
     },
     methods: {
@@ -123,24 +137,31 @@ export default {
         },
         onSubmit() {
             var self = this;
-            var url = baseUrl + "subsidy/add";
-            if (self.editMode == "update") {
-                url = baseUrl + "subsidy/update";
-            }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: url,
-                data: self.form,
-                success: function(data) {
-                    if (data.result == "suc") {
-                        self.editMode = 'none';
-                        self.loadingData = true;
-                        self.loadSubsidyList();
+            self.$refs["theForm"].validate((valid) => {
+                if (valid) {
+                    var url = baseUrl + "subsidy/add";
+                    if (self.editMode == "update") {
+                        url = baseUrl + "subsidy/update";
                     }
-                    else {
-                        self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
-                    }
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: url,
+                        data: self.form,
+                        success: function(data) {
+                            if (data.result == "suc") {
+                                self.editMode = 'none';
+                                self.loadingData = true;
+                                self.loadSubsidyList();
+                            }
+                            else {
+                                self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
+                            }
+                        }
+                    });
+                } else {
+                    console.log('error submit!!');
+                    return false;
                 }
             });
         },

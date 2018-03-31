@@ -6,14 +6,14 @@
                     <el-button type="success" size="mini" style="float: right;" @click="editMode = 'add'">新增销售订单</el-button>
                     <el-dialog title="新增销售订单" :visible="dialogFormVisible" @close="editMode = 'none'"
                         :close-on-click-modal="false" :close-on-press-escape="false">
-                        <el-form :model="form" label-width="110px">
-                            <el-form-item label="销售日期">
+                        <el-form :model="form" :rules="rules" ref="theForm" label-width="110px">
+                            <el-form-item label="销售日期" prop="fldDate">
                                 <el-date-picker v-model="form.fldDate" align="right" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" :picker-options="pickerOptions1" />
                             </el-form-item>
-                            <el-form-item label="客户姓名">
+                            <el-form-item label="客户姓名" prop="fldCustomer">
                                 <el-input v-model="form.fldCustomer" placeholder="请输入客户姓名" auto-complete="off" style="width: 500px" />
                             </el-form-item>
-                            <el-form-item label="经手人">
+                            <el-form-item label="经手人" prop="fldHandler">
                                 <el-input v-model="form.fldHandler" placeholder="请输入经手人" auto-complete="off" style="width: 500px" />
                             </el-form-item>
                             <el-form-item label="备注">
@@ -96,7 +96,18 @@ export default {
             handlerSearch: "",
             customerSearch: "",
             editMode: "none",
-            loadingData: true
+            loadingData: true,
+            rules: {
+                fldDate: [
+                    { required: true, message: '请选择日期', trigger: 'change' }
+                ],
+                fldCustomer: [
+                    { required: true, message: '请输入客户姓名', trigger: 'blur' }
+                ],
+                fldHandler: [
+                    { required: true, message: '请输入经手人', trigger: 'blur' }
+                ]
+            }
         }
     },
     methods: {
@@ -128,24 +139,31 @@ export default {
         },
         onSubmit() {
             var self = this;
-            var url = baseUrl + "sell/order/add";
-            if (self.editMode == "update") {
-                url = baseUrl + "sell/order/update";
-            }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: url,
-                data: self.form,
-                success: function(data) {
-                    if (data.result == "suc") {
-                        self.editMode = 'none';
-                        self.loadingData = true;
-                        self.loadSellOrderList();
+            self.$refs["theForm"].validate((valid) => {
+                if (valid) {
+                    var url = baseUrl + "sell/order/add";
+                    if (self.editMode == "update") {
+                        url = baseUrl + "sell/order/update";
                     }
-                    else {
-                        self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
-                    }
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: url,
+                        data: self.form,
+                        success: function(data) {
+                            if (data.result == "suc") {
+                                self.editMode = 'none';
+                                self.loadingData = true;
+                                self.loadSellOrderList();
+                            }
+                            else {
+                                self.$alert(data.msg, '提交失败', {confirmButtonText: '确定'});
+                            }
+                        }
+                    });
+                } else {
+                    console.log('error submit!!');
+                    return false;
                 }
             });
         },
