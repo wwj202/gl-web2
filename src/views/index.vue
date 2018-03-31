@@ -1,5 +1,5 @@
 <template>
-  <div v-text="msg" style="text-align: center; margin-top: 200px">
+  <div v-text="msg" style="text-align: center; margin-top: 200px; font-size: 30px">
 
   </div>
 </template>
